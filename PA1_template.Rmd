@@ -1,8 +1,9 @@
 ---
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
+title: 'Reproducable Research: Course Project 1'
+author: "Thomas Papacharizanos"
+date: "22/9/2021"
+output: html_document
+---
 
 #**Introduction**
 
