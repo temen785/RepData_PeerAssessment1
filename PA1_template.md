@@ -1,8 +1,8 @@
 ---
-title: 'Reproducable Research: Course Project 1'
-author: "Thomas Papacharizanos"
-date: "22/9/2021"
-output: html_document
+title: "Reproducible Research: Peer Assessment 1"
+output: 
+  html_document:
+    keep_md: true
 ---
 
 
@@ -27,13 +27,32 @@ Download Link: http://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zi
 
 #**Libraries used for this assignment**
 
-```{r}
+
+```r
 library(ggplot2)
 library(dplyr)
 ```
+
+```
+## 
+## Attaching package: 'dplyr'
+```
+
+```
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
 #**Loading and preprocessing the data**
 
-```{r}
+
+```r
 if(!file.exists("./data")){dir.create("./data")}
 fileUrl <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
 download.file(fileUrl,destfile="./data/activity.zip",method="curl")
@@ -44,52 +63,86 @@ activity$date <- as.Date(activity$date)
 ```
 
 #**What is mean total number of steps taken per day?**
-```{r}
+
+```r
 stepsPerDay <- activity %>%
   group_by(date) %>%
   summarise(sumsteps = sum(steps, na.rm = TRUE))
 ```
-```{r}
+
+```r
 hist(stepsPerDay$sumsteps, main = "Daily Steps", 
      col="black", xlab="Steps", ylim = c(0,30))
 ```
-```{r}
+
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
+
+```r
 Mean <- round(mean(stepsPerDay$sumsteps),digits = 1)
 print(paste("Mean is: ", Mean))
+```
+
+```
+## [1] "Mean is:  9354.2"
+```
+
+```r
 Median <- round(median(stepsPerDay$sumsteps),digits = 1)
 print(paste("Median is: ", Median))
 ```
 
+```
+## [1] "Median is:  10395"
+```
+
 #**What is the average daily activity pattern?**
 
-```{r}
+
+```r
 stepsPerInterval <- activity %>%
   group_by(interval) %>%
   summarize(meansteps = mean(steps, na.rm = TRUE)) 
 
 plot(stepsPerInterval$meansteps ~ stepsPerInterval$interval,
-     col="black", type="l", xlab = "Five (5) Minute Intervals", ylab = "Average Number of Steps",
+     col="black", type="l", xlab = "5 Minute Intervals", ylab = "Average Number of Steps",
      main = "Steps By Time Interval")
-
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
 
-```{r}
+
+
+```r
 print(paste("Interval containing the most steps on average: "
             ,stepsPerInterval$interval[which.max(stepsPerInterval$meansteps)]))
 ```
 
-```{r}
+```
+## [1] "Interval containing the most steps on average:  835"
+```
+
+
+```r
 print(paste("Average steps for that interval: ",round(max(stepsPerInterval$meansteps),digits=1)))
 ```
 
+```
+## [1] "Average steps for that interval:  206.2"
+```
+
 #**Impute missing values. Compare imputed to non-imputed data.**
-```{r}
+
+```r
 print(paste("The total number of rows with NA is: ",sum(is.na(activity$steps))))
 ```
 
+```
+## [1] "The total number of rows with NA is:  2304"
+```
 
-```{r}
+
+
+```r
 activityNoNA <- activity  
 for (i in 1:nrow(activity)){
   if(is.na(activity$steps[i])){
@@ -102,37 +155,59 @@ stepsPerDay <- activityNoNA %>%
   summarize(sumsteps = sum(steps, na.rm = TRUE)) 
 ```
 
-```{r}
+
+```r
 hist(stepsPerDay$sumsteps, main = "Histogram of Daily Steps", 
      col="black", xlab="Steps")
 ```
 
-```{r}
+![](PA1_template_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
+
+
+```r
 meanPostNA <- round(mean(stepsPerDay$sumsteps), digits = 1)
 print(paste("Mean post NA is: ", mean(meanPostNA)))
 ```
 
-```{r}
+```
+## [1] "Mean post NA is:  10766.2"
+```
+
+
+```r
 medianPostNA <- round(median(stepsPerDay$sumsteps), digits = 1)
 print(paste("Median post NA is: ", median(medianPostNA)))
 ```
 
-```{r}
+```
+## [1] "Median post NA is:  10766.2"
+```
+
+
+```r
 NACompare <- data.frame(mean = c(Mean,meanPostNA),median = c(Median,medianPostNA))
 rownames(NACompare) <- c("Pre NA ", "Post NA ")
 print(NACompare)
 ```
 
+```
+##             mean  median
+## Pre NA    9354.2 10395.0
+## Post NA  10766.2 10766.2
+```
+
 
 #**Are there differences in activity patterns between weekdays and weekends?**
-```{r}
+
+```r
 activityDoW <- activityNoNA
 activityDoW$date <- as.Date(activityDoW$date)
 activityDoW$day <- ifelse(weekdays(activityDoW$date) %in% c("Saturday", "Sunday"), "weekend", "weekday")
 activityDoW$day <- as.factor(activityDoW$day)
 ```
 
-```{r}
+
+```r
 activityWeekday <- filter(activityDoW, activityDoW$day == "weekday")
 activityWeekend <- filter(activityDoW, activityDoW$day == "weekend")
 
@@ -156,3 +231,5 @@ g <- ggplot (wkdayWkend, aes (interval, steps))+ geom_line()  +
         theme(plot.title = element_text(hjust = 0.5))
 g + facet_grid (day~.)
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-16-1.png)<!-- -->
